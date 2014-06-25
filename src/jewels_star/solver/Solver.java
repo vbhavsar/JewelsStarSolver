@@ -34,7 +34,8 @@ public class Solver {
     }
 
     private BufferedImage screenshot() {
-        Rectangle gameRect = new Rectangle(startingPoint.x, startingPoint.y, Constants.CELL_WIDTH*Constants.CELL_COLS+Constants.BUFFER, Constants.CELL_HEIGHT*Constants.CELL_ROWS+Constants.BUFFER);
+        Rectangle gameRect = new Rectangle(startingPoint.x, startingPoint.y, Constants.CELL_WIDTH*Constants.CELL_COLS, Constants.CELL_HEIGHT*Constants.CELL_ROWS);
+//        Rectangle gameRect = new Rectangle(startingPoint.x, startingPoint.y, Constants.CELL_WIDTH, Constants.CELL_HEIGHT);
         return r.createScreenCapture(gameRect);
     }
 
@@ -42,7 +43,6 @@ public class Solver {
         Solver s = new Solver();
         System.out.println("Click the top left cell");
         s.r.delay(1000);
-        s.saveScreenshot();
         s.solve();
         System.out.println("thanks. bye");
     }
@@ -56,21 +56,24 @@ public class Solver {
         r.mouseMove(startingPoint.x + Constants.CELL_WIDTH * (col + 1) - Constants.CELL_WIDTH / 2, startingPoint.y + Constants.CELL_HEIGHT * (row + 1) - Constants.CELL_HEIGHT / 2);
     }
 
-    private void solve() {
+    private void solve() throws IOException {
+//        saveScreenshot();
         // analyze the board by taking a screenshot and processing it
 
         // move some cells around
-        Cell c1 = new Cell(0, 6);
-        Cell c2 = new Cell(1, 6);
+        Cell c1 = new Cell(1, 1);
+        Cell c2 = new Cell(1, 2);
         swap(c1, c2);
 
     }
 
     private void swap(Cell c1, Cell c2) {
         moveToCell(c1);
-        this.r.mousePress(InputEvent.BUTTON3_MASK);
-        this.r.delay(4000);
+        this.r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+        this.r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+//        this.r.delay(1000);
         moveToCell(c2);
-        this.r.mouseRelease(InputEvent.BUTTON3_MASK);
+        this.r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+        this.r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
     }
 }
