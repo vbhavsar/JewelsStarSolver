@@ -43,10 +43,13 @@ public class Solver {
         Solver s = new Solver();
         System.out.println("Click the top left cell");
 
-        for (int i=0; i<25; i++) {
-            s.r.delay(1000);
+/*
+        for (int i=0; i<10; i++) {
+            s.r.delay(500);
             s.solve();
         }
+*/
+        s.solve();
 
         System.out.println("thanks. bye");
     }
