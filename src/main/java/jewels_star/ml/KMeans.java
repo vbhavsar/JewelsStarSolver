@@ -24,7 +24,7 @@ public class KMeans {
         this.grid = grid;
     }
 
-    public static Map<String, Integer> classify(Cell[][] cells) {
+    public static Map<String, Integer> classify(Cell[][] cells, int k) {
 
         final Collection<Instance> data = new ArrayList<Instance>();
 
@@ -39,10 +39,23 @@ public class KMeans {
                 inst.put(B, Double.valueOf(rgb[2]));
 
                 data.add(inst);
+
+                // Add samples
+                if (cell.getSamples() != null) {
+
+                    for (int[] sample : cell.getSamples()) {
+                        final DenseInstance sampleInstance = new DenseInstance(3);
+                        sampleInstance.put(R, Double.valueOf(sample[0]));
+                        sampleInstance.put(G, Double.valueOf(sample[1]));
+                        sampleInstance.put(B, Double.valueOf(sample[2]));
+
+                        data.add(sampleInstance);
+                    }
+                }
             }
         }
 
-        net.sf.javaml.clustering.KMeans kmeans = new net.sf.javaml.clustering.KMeans(7, 100);
+        net.sf.javaml.clustering.KMeans kmeans = new net.sf.javaml.clustering.KMeans(k, 100);
         Dataset dataset = new DefaultDataset(data);
         final Dataset[] clusters = kmeans.cluster(dataset);
 
@@ -62,5 +75,9 @@ public class KMeans {
         }
 
         return rgbToClassMap;
+    }
+
+    public static Map<String, Integer> classifyBestFit(Cell[][] cells, int minK) {
+        return null;
     }
 }

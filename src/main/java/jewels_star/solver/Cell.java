@@ -2,6 +2,8 @@ package jewels_star.solver;
 
 import java.awt.*;
 import java.awt.image.SampleModel;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: vishal
@@ -15,6 +17,7 @@ public class Cell {
     private int[] rgb;
     private String rgbHex;
     private Integer clazz;
+    private int[][] samples;
 
     public Cell(int x, int y) {
         this.point = new Point(x, y);
@@ -62,5 +65,49 @@ public class Cell {
 
     public void setClazz(Integer clazz) {
         this.clazz = clazz;
+    }
+
+    public int[][] getSamples() {
+        return samples;
+    }
+
+    public void setSamples(int[][] samples) {
+        this.samples = samples;
+    }
+
+    public void determineClazz(Map<String, Integer> rgbToClassMap) {
+
+        // Build histogram
+
+        Map<Integer, Integer> clazzCount = new HashMap<Integer, Integer>();
+
+        if (samples != null) {
+            for (int[] sample : samples) {
+                int r = sample[0], g = sample[1], b = sample[2];
+                final String rgbHex = Cell.getRGB(r, g, b);
+                int sclazz = rgbToClassMap.get(rgbHex);
+
+                final Integer clazzVal = clazzCount.get(sclazz);
+                if (clazzVal == null) {
+                    clazzCount.put(sclazz, 1);
+                } else {
+                    clazzCount.put(sclazz, clazzVal+1);
+                }
+            }
+
+            int maxCount = 0;
+            int maxClazz = -1;
+            // See which count is highest
+            for (Map.Entry<Integer, Integer> entry : clazzCount.entrySet()) {
+                if (entry.getValue() > maxCount) {
+                    maxCount = entry.getValue();
+                    maxClazz = entry.getKey();
+                }
+            }
+            if (this.clazz != maxClazz) {
+                System.out.printf("Cell [%d,%d] think it belongs to clazz [%d] but I believe it belongs to [%d]. Setting clazz to %d\n", this.point.x, this.point.y, this.clazz, maxClazz, maxClazz);
+                this.clazz = maxClazz;
+            }
+        }
     }
 }

@@ -1,5 +1,7 @@
 package jewels_star.solver;
 
+import jewels_star.ml.CannyEdgeDetector;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.InputEvent;
@@ -65,10 +67,12 @@ public class Solver {
 
     private void solve() throws IOException {
         saveScreenshot();
+
         final BufferedImage screenshot = screenshot();
+        getEdges(screenshot);
 
         // Generate a grid from the screenshot
-        Grid grid = new Grid(screenshot);
+        Grid grid = new Grid(screenshot, 8);
         System.out.println(grid);
         // analyze the screenshot
         // calculate centers
@@ -83,6 +87,20 @@ public class Solver {
         } else {
             System.out.println("Found no cells to swap! :(");
         }
+    }
+
+    private void getEdges(BufferedImage screenshot) throws IOException {
+        CannyEdgeDetector detector = new CannyEdgeDetector();
+        detector.setLowThreshold(0.5f);
+        detector.setHighThreshold(1f);
+        detector.setSourceImage(screenshot());
+        detector.process();
+        BufferedImage edges = detector.getEdgesImage();
+
+        File edgeSnap = new File("c:\\temp\\jewel-edge.png");
+        ImageIO.write(edges, "png", edgeSnap);
+        System.out.printf("Edge screenshot saved to %s\n", edgeSnap.getAbsolutePath());
+
     }
 
     private void swap(Cell c1, Cell c2) {

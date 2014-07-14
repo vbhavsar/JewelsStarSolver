@@ -1,6 +1,7 @@
 package jewels_star.solver;
 
 import jewels_star.ml.KMeans;
+import jewels_star.util.MathUtils;
 import org.springframework.util.Assert;
 
 import java.awt.*;
@@ -21,8 +22,14 @@ public class Grid {
     private final BufferedImage image;
     private Cell[][] cells;
 
-    public Grid(BufferedImage screenshot) {
-        this.image = screenshot;
+    /**
+     * Number of numSamples for a cell
+     */
+    private int numSamples = 0;
+
+    public Grid(BufferedImage image, int numSamples) {
+        this.numSamples = numSamples;
+        this.image = image;
         cells = new Cell[CELL_ROWS][CELL_COLS];
         init();
     }
@@ -40,7 +47,9 @@ public class Grid {
                 cell.setSampleModel(sampleModel);
 
                 final double[] pixel = new double[raster.getNumBands()];
-                raster.getPixel((col*CELL_WIDTH) + CELL_WIDTH / 2, (row*CELL_HEIGHT) + CELL_HEIGHT / 2, pixel);
+                final int center_x = (col * CELL_WIDTH) + CELL_WIDTH / 2;
+                final int center_y = (row*CELL_HEIGHT) + CELL_HEIGHT / 2;
+                raster.getPixel(center_x, center_y, pixel);
 
                 int[] rgb = new int[3];
                 rgb[0] = new Double(pixel[0]).intValue();
@@ -50,6 +59,36 @@ public class Grid {
                 cell.setRGB(rgb);
 
                 cells[row][col] = cell;
+
+                // Collect samples
+                if (numSamples > 0) {
+                    int[][] samples = new int[numSamples][3];
+                    final int degrees = (360 / (numSamples));
+
+                    final Point center = new Point(center_x, center_y);
+
+                    final double width = CELL_WIDTH/4; // 4 because we want half the distance between center and edge
+                    final double height = CELL_HEIGHT/4; // see comment above
+
+                    double magnitude = Math.sqrt( width*width+height*height  );
+
+                    for (int i=0; i<numSamples; i++) {
+
+                        // Get rgb of the ith sample
+                        final Point offset = MathUtils.getOffset(center, i * degrees, magnitude);
+                        final int offset_x = offset.x;
+                        final int offset_y = offset.y;
+                        raster.getPixel(offset_x, offset_y, pixel);
+
+                        samples[i][0] = new Double(pixel[0]).intValue();
+                        samples[i][1] = new Double(pixel[1]).intValue();
+                        samples[i][2] = new Double(pixel[2]).intValue();
+
+                    }
+
+                    cells[row][col].setSamples(samples);
+
+                }
             }
         }
     }
@@ -62,7 +101,8 @@ public class Grid {
             builder.append("[");
             for (int j=0; j<Constants.CELL_COLS; j++) {
                 final int[] rgb = this.cells[i][j].getRgb();
-                builder.append(String.format("%d:%d:%d", rgb[0], rgb[1], rgb[2]));
+//                builder.append(String.format("%d:%d:%d", rgb[0], rgb[1], rgb[2]));
+                builder.append(this.cells[i][j].getRgbHex());
                 builder.append(", ");
             }
             builder.setLength(builder.length() - 2);
@@ -76,7 +116,7 @@ public class Grid {
     }
 
     public void classify() {
-        final Map<String,Integer> rgbToClassMap = KMeans.classify(this.cells);
+        final Map<String,Integer> rgbToClassMap = KMeans.classify(this.cells, 7);
 
         for (int row=0; row<Constants.CELL_ROWS; row++) {
             for (int col=0; col<Constants.CELL_COLS; col++) {
@@ -87,6 +127,7 @@ public class Grid {
                 Assert.notNull(rgbClass, String.format("%s does not have a corresponding class!", rgbHex));
 
                 cells[row][col].setClazz(rgbClass);
+                cells[row][col].determineClazz(rgbToClassMap);
             }
         }
     }
