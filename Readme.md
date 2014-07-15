@@ -26,7 +26,7 @@ Solver for Jewels Star. See Example below for a few more details.
 </pre>
 
 #### Observation ####
-Almost all of the basic jewels are correctly classified into separate clusters (there are some exceptions such as [1][0]). Understandably, the special clusters, namely [0][5], [6][2] and [6][6], are not classified correctly at all. Decent for a naiive algorithm. The challenge will be to improve upon this so that the classification is exact.
+Almost all of the basic jewels are correctly classified into separate classes (there are some exceptions such as [1][0]). Understandably, the special jewels, namely [0][5], [6][2] and [6][6], are not classified correctly at all. Decent for a naiive algorithm. The challenge will be to improve upon this so that the classification is exact.
 
 Breaking the problem further, there are 2 main issues to tackle:
 1. identify the right number of classes (in this case, 7) 
