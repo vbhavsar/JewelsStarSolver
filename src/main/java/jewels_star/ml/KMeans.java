@@ -2,6 +2,8 @@ package jewels_star.ml;
 
 import jewels_star.solver.Cell;
 import jewels_star.solver.Grid;
+import net.sf.javaml.clustering.evaluation.ClusterEvaluation;
+import net.sf.javaml.clustering.evaluation.SumOfSquaredErrors;
 import net.sf.javaml.core.Dataset;
 import net.sf.javaml.core.DefaultDataset;
 import net.sf.javaml.core.DenseInstance;
@@ -19,13 +21,18 @@ import static jewels_star.solver.Constants.*;
 public class KMeans {
 
     private final Grid grid;
+    private double clusterScore;
+    private Map<String, Integer> rgbToClassMap;
+    private int k;
 
     public KMeans(final Grid grid) {
         this.grid = grid;
     }
 
-    public static Map<String, Integer> classify(Cell[][] cells, int k) {
+    public void classify(int k) {
+        this.k = k;
 
+        final Cell[][] cells = grid.getCells();
         final Collection<Instance> data = new ArrayList<Instance>();
 
         for (int row=0; row<cells.length; row++) {
@@ -59,7 +66,11 @@ public class KMeans {
         Dataset dataset = new DefaultDataset(data);
         final Dataset[] clusters = kmeans.cluster(dataset);
 
-        Map<String, Integer> rgbToClassMap = new HashMap<String, Integer>();
+        // Evaluate cluster
+        final ClusterEvaluation sse= new SumOfSquaredErrors();
+        this.clusterScore = sse.score(clusters);
+
+        final Map<String, Integer> rgbToClassMap = new HashMap<String, Integer>();
 
         for (int icluster = 0; icluster < clusters.length; icluster++) {
             final Iterator<Instance> iterator = clusters[icluster].iterator();
@@ -74,10 +85,30 @@ public class KMeans {
             }
         }
 
+        this.rgbToClassMap = rgbToClassMap;
+    }
+
+    public double getClusterScore() {
+        return clusterScore;
+    }
+
+    public void setClusterScore(double clusterScore) {
+        this.clusterScore = clusterScore;
+    }
+
+    public Map<String, Integer> getRgbToClassMap() {
         return rgbToClassMap;
     }
 
-    public static Map<String, Integer> classifyBestFit(Cell[][] cells, int minK) {
-        return null;
+    public void setRgbToClassMap(Map<String, Integer> rgbToClassMap) {
+        this.rgbToClassMap = rgbToClassMap;
+    }
+
+    public int getK() {
+        return k;
+    }
+
+    public void setK(int k) {
+        this.k = k;
     }
 }

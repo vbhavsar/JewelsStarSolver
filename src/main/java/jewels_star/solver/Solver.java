@@ -32,7 +32,7 @@ public class Solver {
         final BufferedImage screenCapture = screenshot();
         File gameSnap = new File("c:\\temp\\jewel.png");
         ImageIO.write(screenCapture, "png", gameSnap);
-        System.out.printf("Screenshot saved to %s\n", gameSnap.getAbsolutePath());
+//        System.out.printf("Screenshot saved to %s\n", gameSnap.getAbsolutePath());
     }
 
     private BufferedImage screenshot() {
@@ -45,7 +45,7 @@ public class Solver {
         Solver s = new Solver();
         System.out.println("Click the top left cell");
 
-        for (int i=0; i<250; i++) {
+        for (int i=0; i<300; i++) {
             s.r.delay(500);
             s.solve();
         }
@@ -61,7 +61,6 @@ public class Solver {
     }
 
     private void moveToCell(int row, int col) {
-        System.out.printf("Moving to [%d,%d]\n", row, col);
         r.mouseMove(startingPoint.x + Constants.CELL_WIDTH * (col + 1) - Constants.CELL_WIDTH / 2, startingPoint.y + Constants.CELL_HEIGHT * (row + 1) - Constants.CELL_HEIGHT / 2);
     }
 
@@ -69,15 +68,12 @@ public class Solver {
         saveScreenshot();
 
         final BufferedImage screenshot = screenshot();
-        getEdges(screenshot);
+//        getEdges(screenshot);
 
         // Generate a grid from the screenshot
-        Grid grid = new Grid(screenshot, 8);
-        System.out.println(grid);
-        // analyze the screenshot
-        // calculate centers
+        Grid grid = new Grid(screenshot, 0);
+        // analyze the screenshot and classify
         grid.classify();
-        System.out.println("After classification");
         grid.printClasses();
 
         Cell[] cellsToSwap = grid.findMoves();

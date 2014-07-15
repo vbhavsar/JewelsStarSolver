@@ -34,6 +34,15 @@ public class Grid {
         init();
     }
 
+    /**
+     * Purely for test purposes
+     * @param cells
+     */
+    public Grid(Cell[][] cells) {
+        this.cells = cells;
+        this.image = null;
+    }
+
     public void init() {
 
         for (int row=0; row<Constants.CELL_ROWS; row++) {
@@ -116,7 +125,9 @@ public class Grid {
     }
 
     public void classify() {
-        final Map<String,Integer> rgbToClassMap = KMeans.classify(this.cells, 7);
+        final KMeans kmeans = new KMeans(this);
+        kmeans.classify(8);
+        final Map<String,Integer> rgbToClassMap = kmeans.getRgbToClassMap();
 
         for (int row=0; row<Constants.CELL_ROWS; row++) {
             for (int col=0; col<Constants.CELL_COLS; col++) {
@@ -133,6 +144,74 @@ public class Grid {
     }
 
     public Cell[] findMoves() {
+
+        final Cell[] verticalMoves, horizontalMoves;
+
+        // introduce randomness
+        if ((int)(Math.random()*10)%2==0) {
+            return (verticalMoves = findVerticalMoves()) == null ? findHorizontalMoves() : verticalMoves;
+        } else {
+            return (horizontalMoves = findHorizontalMoves()) == null ? findVerticalMoves() : horizontalMoves;
+        }
+    }
+
+    private Cell[] findHorizontalMoves() {
+        for (int row=0; row< Constants.CELL_ROWS-2; row++) {
+            for (int col=0; col<Constants.CELL_COLS; col++) {
+
+                Cell c1 = cells[row][col];
+                Cell c2 = cells[row+1][col];
+                Cell c3 = cells[row+2][col];
+
+                if (c2.getClazz() == c3.getClazz()) {
+
+                    Cell[] neighbors = new Cell[4];
+                    neighbors[0] = getCell(c1, Direction.NORTH);
+                    neighbors[1] = getCell(c1, Direction.SOUTH);
+                    neighbors[2] = getCell(c1, Direction.EAST);
+                    neighbors[3] = getCell(c1, Direction.WEST);
+
+                    for (int i=0; i<4; i++) {
+                        if (neighbors[i] != null && neighbors[i] != c2 && neighbors[i] != c3 && neighbors[i].getClazz() == c2.getClazz()) {
+                            return new Cell[]{neighbors[i], c1};
+                        }
+                    }
+                }
+
+                if (c1.getClazz() == c3.getClazz()) {
+                    Cell[] neighbors = new Cell[4];
+                    neighbors[0] = getCell(c2, Direction.NORTH);
+                    neighbors[1] = getCell(c2, Direction.SOUTH);
+                    neighbors[2] = getCell(c2, Direction.EAST);
+                    neighbors[3] = getCell(c2, Direction.WEST);
+
+                    for (int i=0; i<4; i++) {
+                        if (neighbors[i] != null && neighbors[i] != c1 && neighbors[i] != c3 && neighbors[i].getClazz() == c1.getClazz()) {
+                            return new Cell[]{neighbors[i], c2};
+                        }
+                    }
+                }
+
+                if (c1.getClazz() == c2.getClazz()) {
+                    Cell[] neighbors = new Cell[4];
+                    neighbors[0] = getCell(c3, Direction.NORTH);
+                    neighbors[1] = getCell(c3, Direction.SOUTH);
+                    neighbors[2] = getCell(c3, Direction.EAST);
+                    neighbors[3] = getCell(c3, Direction.WEST);
+
+                    for (int i=0; i<4; i++) {
+                        if (neighbors[i] != null && neighbors[i] != c1 && neighbors[i] != c2 && neighbors[i].getClazz() == c2.getClazz()) {
+                            return new Cell[]{neighbors[i], c3};
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private Cell[] findVerticalMoves() {
         for (int row=0; row< Constants.CELL_ROWS; row++) {
             for (int col=0; col<Constants.CELL_COLS-2; col++) {
 
@@ -184,6 +263,7 @@ public class Grid {
                 }
             }
         }
+
         return null;
     }
 
@@ -222,11 +302,14 @@ public class Grid {
     public void printClasses() {
 
         for (int row=0; row<Constants.CELL_ROWS; row++) {
-            System.out.print("[");
+            final StringBuilder builder = new StringBuilder();
+            builder.append("[");
             for (int col=0; col<Constants.CELL_COLS; col++) {
-                System.out.printf("%d ", cells[row][col].getClazz());
+                builder.append(String.format("%d ", cells[row][col].getClazz()));
             }
-            System.out.println("]");
+            builder.deleteCharAt(builder.length()-1);
+            builder.append("]\n");
+            System.out.print(builder);
         }
 
     }

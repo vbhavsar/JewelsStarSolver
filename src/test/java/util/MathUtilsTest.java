@@ -38,4 +38,21 @@ public class MathUtilsTest {
 
     }
 
+    @Test
+    public void randomnessTest() {
+        // does this return even/odd?
+        for (int i=0; i<50; i++) {
+            final double rand = Math.random();
+//            System.out.println((int)(rand*10)%2);
+            if ((int)(rand*10)%2==0) {
+                System.out.print("-");
+            } else {
+                System.out.print("+");
+            }
+            if ((i+1)%10==0) {
+                System.out.println();
+            }
+        }
+    }
+
 }
