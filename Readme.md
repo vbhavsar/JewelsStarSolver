@@ -35,5 +35,5 @@ Breaking the problem further, there are 2 main issues to tackle:
 Both of which seem to pose significant challenges.
 
 ### Demo ###
-<iframe width="560" height="315" src="//www.youtube.com/embed/89ODh3fhpTY" frameborder="0" allowfullscreen></iframe>
+[Click to see the video](http://youtu.be/89ODh3fhpTY)
 
