@@ -24,7 +24,7 @@ public class ClusteringEffectiveness {
         Grid grid = new Grid(image, 0);
 
         grid.classify();
-
+        System.out.println("After reclassification");
         grid.printClasses();
 
 //        KMeans.classifyBestFit(grid.getCells(), 6);

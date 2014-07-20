@@ -79,7 +79,7 @@ public class Grid {
                     final double width = CELL_WIDTH/4; // 4 because we want half the distance between center and edge
                     final double height = CELL_HEIGHT/4; // see comment above
 
-                    double magnitude = Math.sqrt( width*width+height*height  );
+                    double magnitude = 15; // Math.sqrt( width*width+height*height  );
 
                     for (int i=0; i<numSamples; i++) {
 
@@ -110,7 +110,6 @@ public class Grid {
             builder.append("[");
             for (int j=0; j<Constants.CELL_COLS; j++) {
                 final int[] rgb = this.cells[i][j].getRgb();
-//                builder.append(String.format("%d:%d:%d", rgb[0], rgb[1], rgb[2]));
                 builder.append(this.cells[i][j].getRgbHex());
                 builder.append(", ");
             }
@@ -138,6 +137,7 @@ public class Grid {
                 Assert.notNull(rgbClass, String.format("%s does not have a corresponding class!", rgbHex));
 
                 cells[row][col].setClazz(rgbClass);
+
                 cells[row][col].determineClazz(rgbToClassMap);
             }
         }
